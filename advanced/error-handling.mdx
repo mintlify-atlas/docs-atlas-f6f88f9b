@@ -1,0 +1,137 @@
+---
+title: "Error Handling"
+description: "How the intercom-ruby SDK raises specific exceptions to prevent erroneous data from propagating through your system."
+---
+
+The SDK's error philosophy is to raise specific exceptions rather than returning `nil` or error objects. This approach ensures that erroneous data does not propagate silently through your application — if you see an `Intercom::ServiceUnavailableError`, you know exactly where the problem originated.
+
+You do not need to inspect HTTP responses directly. Any unsuccessful API response raises a subclass of `Intercom::IntercomError`. You can rescue the base class to handle all errors generically, or rescue specific subclasses for fine-grained control.
+
+## Base error class
+
+All public SDK errors inherit from `Intercom::IntercomError`, which provides the following attributes:
+
+| Attribute | Description |
+|---|---|
+| `message` | Human-readable error description |
+| `http_code` | HTTP status code from the response |
+| `application_error_code` | Error code returned by the Intercom API |
+| `field` | The field that caused the error, if applicable |
+| `request_id` | The request ID for support investigations |
+
+## Rescue examples
+
+```ruby
+# Rescue the base class to handle any Intercom error
+begin
+  intercom.contacts.find(id: 'not_found')
+rescue Intercom::IntercomError => e
+  puts e.message
+  puts e.http_code
+end
+```
+
+```ruby
+# Rescue specific errors for targeted handling
+begin
+  contact = intercom.contacts.find(id: '123')
+rescue Intercom::ResourceNotFound => e
+  puts "Contact not found: #{e.message}"
+rescue Intercom::RateLimitExceeded => e
+  puts "Rate limited, reset at: #{intercom.rate_limit_details[:reset_at]}"
+end
+```
+
+## Error classes
+
+<AccordionGroup>
+  <Accordion title="Intercom::IntercomError">
+    Base class for all public SDK exceptions. Provides `http_code`, `application_error_code`, `field`, and `request_id` attributes. Rescue this class to catch any Intercom-related error.
+  </Accordion>
+
+  <Accordion title="Intercom::AuthenticationError">
+    Raised when the token you provided is incorrect or not authorized to access a certain type of data. Check that you have set your token correctly.
+
+    Has three subclasses:
+
+    - **`Intercom::AppSuspendedError`** — the token is linked to a deleted application.
+    - **`Intercom::TokenRevokedError`** — the token has been revoked.
+    - **`Intercom::TokenUnauthorizedError`** — the token cannot be decoded and is most likely invalid.
+  </Accordion>
+
+  <Accordion title="Intercom::ServerError">
+    Raised when something goes wrong within the Intercom API service (HTTP 500).
+  </Accordion>
+
+  <Accordion title="Intercom::BadGatewayError">
+    Raised when the API returns a bad gateway response (HTTP 502).
+  </Accordion>
+
+  <Accordion title="Intercom::GatewayTimeoutError">
+    Raised when the API returns a gateway timeout response (HTTP 504).
+  </Accordion>
+
+  <Accordion title="Intercom::ServiceUnavailableError">
+    Raised when a socket read timeout occurs, or when the API returns a 503 Service Unavailable response.
+  </Accordion>
+
+  <Accordion title="Intercom::ServiceConnectionError">
+    Raised when a socket connect timeout occurs — the client could not establish a connection to the Intercom API.
+  </Accordion>
+
+  <Accordion title="Intercom::ResourceNotFound">
+    Raised when requesting a resource that does not exist in your application on Intercom (HTTP 404).
+  </Accordion>
+
+  <Accordion title="Intercom::AdminNotFound">
+    Raised when requesting an admin that does not exist in your Intercom workspace.
+  </Accordion>
+
+  <Accordion title="Intercom::ResourceNotUniqueError">
+    Raised when trying to create a resource that already exists in Intercom (resource conflict).
+  </Accordion>
+
+  <Accordion title="Intercom::BadRequestError">
+    Raised when the request has bad syntax, a missing parameter, an invalid parameter, or a parameter that cannot be found.
+  </Accordion>
+
+  <Accordion title="Intercom::RateLimitExceeded">
+    Raised when you have exceeded the API rate limit (HTTP 429). See the [Rate Limiting](/advanced/rate-limiting) page for strategies to handle this automatically.
+  </Accordion>
+
+  <Accordion title="Intercom::MultipleMatchingUsersError">
+    Raised when multiple users match the query, typically caused by duplicate email addresses.
+  </Accordion>
+
+  <Accordion title="Intercom::BlockedUserError">
+    Raised when attempting to restore a blocked user.
+  </Accordion>
+
+  <Accordion title="Intercom::AttributeNotSetError">
+    Raised when you call a getter that does not exist on an object.
+  </Accordion>
+
+  <Accordion title="Intercom::HttpError">
+    Raised when the response object is unexpectedly `nil`.
+  </Accordion>
+
+  <Accordion title="Intercom::ApiVersionInvalid">
+    Raised when an invalid API version is specified in the client configuration.
+  </Accordion>
+
+  <Accordion title="Intercom::ScrollAlreadyExistsError">
+    Raised when attempting to create a scroll cursor when one already exists for the resource. See the [Pagination & Scrolling](/advanced/pagination) page for details.
+  </Accordion>
+
+  <Accordion title="Intercom::InvalidDocumentError">
+    Raised when a Custom Data Attribute (CDA) document is invalid.
+  </Accordion>
+
+  <Accordion title="Intercom::InvalidMergeError">
+    Raised when a merge operation is invalid.
+  </Accordion>
+
+  <Accordion title="Intercom::TagHasDependentObjects">
+    Raised when attempting to delete a tag that has dependent objects attached to it.
+  </Accordion>
+</AccordionGroup>

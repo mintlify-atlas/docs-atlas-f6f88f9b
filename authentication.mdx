@@ -1,0 +1,76 @@
+---
+title: "Authentication"
+description: "Configure your Intercom client with a Personal Access Token or OAuth credentials."
+---
+
+## Personal Access Token
+
+The primary way to authenticate is with a Personal Access Token. You can find or create one in the [Intercom developer hub](https://app.intercom.io/a/apps/_/developer-hub/).
+
+```ruby
+intercom = Intercom::Client.new(token: 'my_token')
+```
+
+<Warning>
+`token` is required. If you pass `nil`, the client raises `Intercom::MisconfiguredClientError` with the message `"an access token must be provided"`.
+</Warning>
+
+### Use an environment variable
+
+Store your token in an environment variable rather than hardcoding it in source code.
+
+```ruby
+intercom = Intercom::Client.new(token: ENV['INTERCOM_ACCESS_TOKEN'])
+```
+
+Set the variable in your environment before running your application:
+
+```bash
+export INTERCOM_ACCESS_TOKEN=your_token_here
+```
+
+## OAuth for third-party apps
+
+If you are building an app that accesses multiple Intercom workspaces, use OAuth to obtain access tokens on behalf of each workspace. See the [OAuth setup guide](https://developers.intercom.io/page/setting-up-oauth) for details.
+
+The [omniauth-intercom](https://github.com/intercom/omniauth-intercom) library provides Rack middleware that handles the OAuth flow for you. Once you have an access token from the OAuth exchange, initialize the client the same way:
+
+```ruby
+intercom = Intercom::Client.new(token: oauth_access_token)
+```
+
+## Pin to a specific API version
+
+By default the client uses the latest API version. To pin to a specific version, pass `api_version`:
+
+```ruby
+intercom = Intercom::Client.new(token: 'my_token', api_version: '2.6')
+```
+
+Pass `nil` (the default) to use the latest version. The value must be `'Unstable'` or a valid semver string `>= 1.0`, otherwise the client raises `Intercom::MisconfiguredClientError`.
+
+## Client constructor parameters
+
+<ParamField body="token" type="string" required>
+  OAuth or Personal Access Token. Raises `Intercom::MisconfiguredClientError` if `nil`.
+</ParamField>
+
+<ParamField body="api_version" type="string">
+  Pin requests to a specific Intercom API version (e.g. `'2.6'`). Pass `nil` to use the latest version. Must be `'Unstable'` or a valid version string `>= 1.0`.
+</ParamField>
+
+<ParamField body="handle_rate_limit" type="boolean" default="false">
+  When `true`, the client automatically catches `429` rate limit errors and retries after the reset time. After three retries, `Intercom::RateLimitExceeded` is raised.
+
+  ```ruby
+  intercom = Intercom::Client.new(token: ENV['INTERCOM_ACCESS_TOKEN'], handle_rate_limit: true)
+  ```
+</ParamField>
+
+<ParamField body="base_url" type="string" default="https://api.intercom.io">
+  Override the API base URL. Useful for proxies or testing environments.
+
+  ```ruby
+  intercom = Intercom::Client.new(token: ENV['INTERCOM_ACCESS_TOKEN'], base_url: 'https://my-proxy.example.com')
+  ```
+</ParamField>

@@ -1,0 +1,88 @@
+{
+  "projectType": "sdk-library",
+  "projectName": "intercom-ruby",
+  "projectDescription": "Official Ruby gem providing bindings to the Intercom REST API for managing contacts, conversations, events, and more.",
+  "theme": "luma",
+  "primaryColor": "#0665fc",
+  "lightColor": "#7cb4fc",
+  "darkColor": "#041c34",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "introduction",
+              "installation",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Core Resources",
+            "pages": [
+              "resources/contacts",
+              "resources/conversations",
+              "resources/companies",
+              "resources/events",
+              "resources/messages"
+            ]
+          },
+          {
+            "group": "Additional Resources",
+            "pages": [
+              "resources/admins-teams",
+              "resources/tags-segments",
+              "resources/articles-help-center",
+              "resources/data-attributes",
+              "resources/webhooks"
+            ]
+          },
+          {
+            "group": "Advanced Usage",
+            "pages": [
+              "advanced/error-handling",
+              "advanced/rate-limiting",
+              "advanced/pagination",
+              "advanced/bulk-operations"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Full Ruby bindings for the Intercom REST API v2.6",
+    "Manage contacts, conversations, companies, events, tags, segments, and more",
+    "OAuth and Personal Access Token authentication",
+    "Built-in rate limit handling with automatic retry",
+    "Search and scroll support for large datasets",
+    "Webhook subscription management",
+    "Bulk job operations for large-scale data updates",
+    "Help Center articles, collections, and sections management"
+  ],
+  "publicApiSurface": [
+    "Intercom::Client.new(token:, api_version:, handle_rate_limit:)",
+    "intercom.contacts - Contact CRUD, search, merge, archive",
+    "intercom.conversations - Conversation find, reply, assign, open, close, search",
+    "intercom.companies - Company CRUD, scroll, list",
+    "intercom.events - Event create, find_all",
+    "intercom.messages - Message create (inapp, email)",
+    "intercom.admins - Admin find, list, me",
+    "intercom.teams - Team find, list",
+    "intercom.tags - Tag CRUD, tag/untag resources",
+    "intercom.segments - Segment find, list",
+    "intercom.notes - Note find",
+    "intercom.articles - Article CRUD with translations",
+    "intercom.collections - Collection CRUD with translations",
+    "intercom.sections - Section CRUD with translations",
+    "intercom.data_attributes - Data attribute CRUD",
+    "intercom.subscriptions - Webhook subscription CRUD",
+    "intercom.subscription_types - Subscription type find, list",
+    "intercom.visitors - Visitor find, save, convert",
+    "intercom.export_content - Data export create, find, cancel",
+    "intercom.jobs - Bulk job operations",
+    "intercom.rate_limit_details - Rate limit info hash"
+  ]
+}

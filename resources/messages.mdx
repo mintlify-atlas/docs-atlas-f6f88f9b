@@ -1,0 +1,114 @@
+---
+title: 'Messages'
+description: 'Send in-app and email messages between admins, users, contacts, and leads with the intercom-ruby SDK.'
+---
+
+Messages initiate a new conversation. All message operations are available on `intercom.messages` via `create`. The shape of the payload determines who sends the message and how it is delivered.
+
+## Admin to user
+
+<CodeGroup>
+
+```ruby In-app message
+intercom.messages.create({
+  message_type: 'inapp',
+  body: "What's up :)",
+  from: {
+    type: 'admin',
+    id: "1234"
+  },
+  to: {
+    type: "user",
+    user_id: "5678"
+  }
+})
+```
+
+```ruby Email message
+intercom.messages.create({
+  message_type: 'email',
+  subject: 'Hey there',
+  body: "What's up :)",
+  template: "plain", # or "personal"
+  from: {
+    type: "admin",
+    id: "1234"
+  },
+  to: {
+    type: "user",
+    id: "536e564f316c83104c000020"
+  }
+})
+```
+
+</CodeGroup>
+
+<Note>
+  For email messages, `template` accepts `"plain"` or `"personal"`.
+</Note>
+
+---
+
+## Admin to contact
+
+```ruby
+intercom.messages.create({
+  body: "How can I help :)",
+  from: {
+    type: "admin",
+    id: "1234"
+  },
+  to: {
+    type: "contact",
+    id: "536e5643as316c83104c400671"
+  }
+})
+```
+
+---
+
+## From a user
+
+Sending a message from a user opens a new inbound conversation.
+
+```ruby
+intercom.messages.create({
+  from: {
+    type: "user",
+    id: "536e564f316c83104c000020"
+  },
+  body: "halp"
+})
+```
+
+---
+
+## From a contact
+
+```ruby
+intercom.messages.create({
+  from: {
+    type: "contact",
+    id: "536e5643as316c83104c400671"
+  },
+  body: "halp"
+})
+```
+
+---
+
+## From a lead
+
+<Note>
+  From API v2.6, the `"contact"` type is no longer supported for outbound messages from leads. Use `"lead"` instead.
+</Note>
+
+```ruby
+intercom.messages.create({
+  from: {
+    type: "lead",
+    id: "536e5643as316c83104c400671"
+  },
+  body: "halp"
+})
+```

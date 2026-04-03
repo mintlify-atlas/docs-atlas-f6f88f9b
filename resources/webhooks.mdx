@@ -1,0 +1,72 @@
+---
+title: "Webhooks"
+description: "Manage webhook subscriptions and contact subscription types."
+---
+
+<Note>
+  `intercom.subscriptions` manages **webhook subscriptions** — endpoints on your server that receive event notifications from Intercom (e.g. when a conversation is created or a user is updated). This is separate from `intercom.subscription_types`, which manages **contact-level marketing preferences** — the communication channels a contact has opted into, such as email newsletters or SMS updates.
+</Note>
+
+## Webhook subscriptions
+
+Use `intercom.subscriptions` to register URLs that Intercom will call when specific events occur in your workspace.
+
+### Create a subscription
+
+Provide the URL of your endpoint and an array of topic strings representing the events you want to receive.
+
+```ruby
+intercom.subscriptions.create(url: "http://example.com", topics: ["user.created"])
+```
+
+### Fetch a subscription
+
+```ruby
+intercom.subscriptions.find(id: "nsub_123456789")
+```
+
+### Delete a subscription
+
+```ruby
+subscription = intercom.subscriptions.find(id: "nsub_123456789")
+intercom.subscriptions.delete(subscription)
+```
+
+### List all subscriptions
+
+```ruby
+intercom.subscriptions.all
+```
+
+---
+
+## Subscription types
+
+Subscription types represent the communication channels that contacts can opt into, such as marketing emails or product updates. Use `intercom.subscription_types` to look them up, then manage a contact's preferences through the contact resource.
+
+### Fetch a subscription type
+
+```ruby
+intercom.subscription_types.find(id: "1")
+```
+
+### List all subscription types
+
+```ruby
+intercom.subscription_types.all
+```
+
+### Managing contact subscription preferences
+
+Once you have a subscription type, you can attach it to a contact, list what a contact is opted into, or remove it. See [Contacts](/resources/contacts) for the full contact subscription operations:
+
+```ruby
+# Attach a subscription type to a contact
+contact.create_subscription_type(id: subscription_type.id)
+
+# List subscription types for a contact
+contact.subscription_types.each { |n| p n.id }
+
+# Remove a subscription type from a contact
+contact.remove_subscription_type({ "id": subscription_type.id })
+```

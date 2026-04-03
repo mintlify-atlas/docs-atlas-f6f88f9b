@@ -1,0 +1,136 @@
+---
+title: 'Events'
+description: 'Track custom user events and retrieve event history with the intercom-ruby SDK.'
+---
+
+Events let you record actions that contacts perform in your product. Each event has a name, a timestamp, and an optional metadata payload. All event operations are available on `intercom.events`.
+
+<Warning>
+  The field name `type` is reserved by this version of the gem. Do not use `type` as a key in your event metadata.
+</Warning>
+
+## Create an event
+
+At minimum, provide `event_name`, `created_at`, and an identifier for the contact (`email` or `user_id`).
+
+<CodeGroup>
+
+```ruby With email
+intercom.events.create(
+  event_name: "invited-friend",
+  created_at: Time.now.to_i,
+  email: user.email,
+  metadata: {
+    "invitee_email" => "pi@example.org",
+    invite_code: "ADDAFRIEND",
+    "found_date" => 12909364407
+  }
+)
+```
+
+```ruby With user_id
+intercom.events.create(
+  event_name: "invited-friend",
+  created_at: Time.now.to_i,
+  user_id: user.uuid
+)
+```
+
+</CodeGroup>
+
+<Tip>
+  Use `user_id` instead of `email` when your application allows multiple accounts to share the same email address.
+</Tip>
+
+---
+
+## Metadata types
+
+The metadata payload supports several value types that Intercom recognises and renders specially.
+
+```ruby
+intercom.events.create(
+  event_name: "placed-order",
+  email: current_user.email,
+  created_at: 1403001013,
+  metadata: {
+    order_date: Time.now.to_i,
+    stripe_invoice: 'inv_3434343434',
+    order_number: {
+      value: '3434-3434',
+      url: 'https://example.org/orders/3434-3434'
+    },
+    price: {
+      currency: 'usd',
+      amount: 2999
+    }
+  }
+)
+```
+
+<AccordionGroup>
+  <Accordion title="Date">
+    A key ending with `_date` whose value is a Unix timestamp integer is interpreted as a date.
+
+    ```ruby
+    order_date: Time.now.to_i
+    ```
+  </Accordion>
+  <Accordion title="Stripe invoice">
+    A key named `stripe_invoice` with a Stripe invoice ID string is linked directly to the invoice in the Stripe dashboard.
+
+    ```ruby
+    stripe_invoice: 'inv_3434343434'
+    ```
+  </Accordion>
+  <Accordion title="Rich link">
+    A hash containing both `value` (display text) and `url` (link target) is rendered as a clickable link.
+
+    ```ruby
+    order_number: {
+      value: '3434-3434',
+      url: 'https://example.org/orders/3434-3434'
+    }
+    ```
+  </Accordion>
+  <Accordion title="Amount (money)">
+    A hash containing `amount` (integer in the smallest currency unit, e.g. cents) and `currency` (ISO 4217 code) is formatted as a monetary value.
+
+    ```ruby
+    price: {
+      currency: 'usd',
+      amount: 2999
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Retrieve events for a contact
+
+`find_all` returns the full event list for a given contact. Provide `type: "user"` and identify the contact by `intercom_user_id`.
+
+```ruby
+intercom.events.find_all("type" => "user", "intercom_user_id" => "123abc")
+```
+
+---
+
+## Retrieve the event summary
+
+Pass `summary: true` to get a condensed view. Each returned object includes:
+
+- `name` — event name
+- `first` — time of the first occurrence
+- `last` — time of the most recent occurrence
+- `count` — total number of occurrences
+- `description` — human-readable description
+
+```ruby
+events = intercom.events.find_all(
+  type: 'user',
+  intercom_user_id: 'abc',
+  summary: true
+)
+```

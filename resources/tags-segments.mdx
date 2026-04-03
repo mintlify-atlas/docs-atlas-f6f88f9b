@@ -1,0 +1,66 @@
+---
+title: "Tags & Segments"
+description: "Manage tags and segments for contacts and companies."
+---
+
+## Tags
+
+Tags are labels you can apply to contacts and companies to group and filter them. You can also tag conversations directly.
+
+### List all tags
+
+```ruby
+intercom.tags.all.each { |tag| "#{tag.id} - #{tag.name}" }
+intercom.tags.all.map { |tag| tag.name }
+```
+
+### Find a tag
+
+```ruby
+tag = intercom.tags.find(id: "123")
+```
+
+### Tag companies
+
+Apply a tag to one or more companies by passing an array of company identifiers.
+
+```ruby
+tag = intercom.tags.tag(name: 'blue', companies: [{ company_id: "42ea2f1b93891f6a99000427" }])
+```
+
+### Untag companies
+
+Remove a tag from one or more companies.
+
+```ruby
+tag = intercom.tags.untag(name: 'blue', companies: [{ company_id: "42ea2f1b93891f6a99000427" }])
+```
+
+### Delete a tag
+
+<Warning>
+  If the tag has any dependent objects, deleting it will raise a `TagHasDependentObjects` error. Remove the tag from all associated contacts, companies, and conversations before deleting it.
+</Warning>
+
+```ruby
+tag = intercom.tags.find(id: "123")
+intercom.tags.delete(tag)
+```
+
+---
+
+## Segments
+
+Segments are dynamic groups of contacts defined by rules you configure in Intercom. They are read-only through the API.
+
+### Find a segment
+
+```ruby
+segment = intercom.segments.find(id: segment_id)
+```
+
+### List all segments
+
+```ruby
+intercom.segments.all.each { |segment| puts "id: #{segment.id} name: #{segment.name}" }
+```

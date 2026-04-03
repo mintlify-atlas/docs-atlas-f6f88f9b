@@ -1,0 +1,53 @@
+---
+title: "Admins & Teams"
+description: "Look up admins and teams in your Intercom workspace."
+---
+
+Admins are the teammates in your Intercom workspace. Teams are groups of admins. Both resources are read-only — you can look them up but cannot create or modify them through the API.
+
+## Admins
+
+<Note>
+  `intercom.admins.me` only works when your client is authenticated with a Personal Access Token (PAT) or an OAuth token. It will not work with other authentication methods.
+</Note>
+
+### Get the current admin
+
+Retrieve the admin associated with the token used to authenticate the client.
+
+```ruby
+intercom.admins.me
+```
+
+### Find an admin by ID
+
+```ruby
+intercom.admins.find(id: admin_id)
+```
+
+### List all admins
+
+```ruby
+intercom.admins.all.each { |admin| puts admin.email }
+```
+
+Use `admins.all` to discover the IDs of your teammates. Admin IDs are required when assigning conversations — the admin performing the assignment and the assignee must both be valid teammates.
+
+```ruby
+# List all teammates (admins) with their IDs
+intercom.admins.all.each { |a| puts a.inspect if a.type == 'admin' }
+```
+
+## Teams
+
+### Find a team by ID
+
+```ruby
+intercom.teams.find(id: team_id)
+```
+
+### List all teams
+
+```ruby
+intercom.teams.all.each { |team| puts team.name }
+```

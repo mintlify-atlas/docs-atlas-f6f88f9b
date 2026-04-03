@@ -1,0 +1,207 @@
+---
+title: "Articles & Help Center"
+description: "Create and manage Help Center articles, collections, and sections."
+---
+
+The Help Center API lets you manage your self-serve support content. Articles are the individual help pages. Collections are the top-level groupings. Sections are sub-groupings nested inside collections.
+
+<Tabs>
+  <Tab title="Articles">
+
+## Articles
+
+### Create an article
+
+Create an article by providing a title and the ID of the admin who authored it.
+
+```ruby
+article = intercom.articles.create(title: "New Article", author_id: "123456")
+```
+
+### Create an article with translations
+
+Pass a `translated_content` hash where each key is a locale code.
+
+```ruby
+article = intercom.articles.create(
+  title: "New Article",
+  author_id: "123456",
+  translated_content: {
+    fr: { title: "Nouvel Article" },
+    es: { title: "Nuevo artículo" }
+  }
+)
+```
+
+### Find an article
+
+```ruby
+intercom.articles.find(id: "123456")
+```
+
+### List all articles
+
+```ruby
+articles = intercom.articles.all
+articles.each { |article| p article.title }
+```
+
+### Update an article
+
+```ruby
+article.title = "Article Updated!"
+intercom.articles.save(article)
+```
+
+### Update an existing translation
+
+```ruby
+article.translated_content.en.title = "English Updated!"
+intercom.articles.save(article)
+```
+
+### Add a new translation
+
+```ruby
+article.translated_content.es = { title: "Artículo en español" }
+intercom.articles.save(article)
+```
+
+### Delete an article
+
+```ruby
+intercom.articles.delete(article)
+```
+
+  </Tab>
+  <Tab title="Collections">
+
+## Collections
+
+Collections are the top-level groupings in your Help Center.
+
+### Create a collection
+
+```ruby
+collection = intercom.collections.create(name: "New Collection")
+```
+
+### Create a collection with translations
+
+```ruby
+collection = intercom.collections.create(
+  name: "New Collection",
+  translated_content: {
+    fr: { name: "Nouvelle collection" },
+    es: { name: "Nueva colección" }
+  }
+)
+```
+
+### Find a collection
+
+```ruby
+intercom.collections.find(id: "123456")
+```
+
+### List all collections
+
+```ruby
+collections = intercom.collections.all
+collections.each { |collection| p collection.name }
+```
+
+### Update a collection
+
+```ruby
+collection.name = "Collection updated!"
+intercom.collections.save(collection)
+```
+
+### Update an existing translation
+
+```ruby
+collection.translated_content.en.name = "English Updated!"
+intercom.collections.save(collection)
+```
+
+### Add a new translation
+
+```ruby
+collection.translated_content.es = { name: "Colección en español", description: "Descripción en español" }
+intercom.collections.save(collection)
+```
+
+### Delete a collection
+
+```ruby
+intercom.collections.delete(collection)
+```
+
+  </Tab>
+  <Tab title="Sections">
+
+## Sections
+
+Sections are sub-groupings nested inside a collection. Provide a `parent_id` to link a section to its collection.
+
+### Create a section
+
+```ruby
+section = intercom.sections.create(name: "New Section", parent_id: "123456")
+```
+
+### Create a section with translations
+
+```ruby
+section = intercom.sections.create(
+  name: "New Section",
+  translated_content: {
+    fr: { name: "Nouvelle section" },
+    es: { name: "Nueva sección" }
+  }
+)
+```
+
+### Find a section
+
+```ruby
+intercom.sections.find(id: "123456")
+```
+
+### List all sections
+
+```ruby
+sections = intercom.sections.all
+sections.each { |section| p section.name }
+```
+
+### Update a section
+
+```ruby
+section.name = "Section updated!"
+intercom.sections.save(section)
+```
+
+### Update an existing translation
+
+```ruby
+section.translated_content.en.name = "English Updated!"
+intercom.collections.save(section)
+```
+
+### Add a new translation
+
+```ruby
+section.translated_content.es = { name: "Sección en español" }
+intercom.collections.save(section)
+```
+
+### Delete a section
+
+```ruby
+intercom.sections.delete(section)
+```
+
+  </Tab>
+</Tabs>

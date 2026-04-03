@@ -1,0 +1,67 @@
+---
+title: "Data Attributes"
+description: "Create and manage custom metadata for contact and company models."
+---
+
+Data attributes are metadata that describe your contact and company models. They include both standard attributes (built into Intercom) and custom attributes that you define. Use the `data_attributes` service to create, update, archive, and list these attributes.
+
+## Create a custom data attribute
+
+<ParamField body="name" type="string" required>
+  The name of the attribute. Used as the identifier in the API.
+</ParamField>
+
+<ParamField body="model" type="string" required>
+  The model this attribute applies to. Must be `"contact"` or `"company"`.
+</ParamField>
+
+<ParamField body="data_type" type="string" required>
+  The type of data stored. Must be one of `"string"`, `"integer"`, `"float"`, `"boolean"`, `"date"`, or `"list"`.
+</ParamField>
+
+<ParamField body="description" type="string">
+  A human-readable description of the attribute.
+</ParamField>
+
+<ParamField body="archived" type="boolean">
+  Set to `true` to archive the attribute. Archived attributes are hidden from the UI but retained.
+</ParamField>
+
+```ruby
+intercom.data_attributes.create({ name: "test_attribute", model: "contact", data_type: "string" })
+```
+
+## List all data attributes
+
+```ruby
+attributes = intercom.data_attributes.all
+attributes.each { |attribute| p attribute.name }
+```
+
+## Update an attribute
+
+Retrieve an attribute and update its fields, then save it.
+
+```ruby
+attribute = intercom.data_attributes.all.first
+attribute.label = "New label"
+intercom.data_attributes.save(attribute)
+```
+
+## Archive an attribute
+
+Set `archived` to `true` and save to archive an attribute. Archived attributes no longer appear in the Intercom UI but are preserved in the API.
+
+```ruby
+attribute.archived = true
+intercom.data_attributes.save(attribute)
+```
+
+## Find all attributes including archived
+
+Use `find_all` with the `model` and `include_archived` parameters to retrieve all attributes for a model, including those that have been archived.
+
+```ruby
+customer_attributes_incl_archived = intercom.data_attributes.find_all({ "model": "contact", "include_archived": true })
+customer_attributes_incl_archived.each { |attr| p attr.name }
+```

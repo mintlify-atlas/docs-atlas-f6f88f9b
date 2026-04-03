@@ -1,0 +1,76 @@
+---
+title: "Pagination & Scrolling"
+description: "Strategies for retrieving large datasets from the Intercom API using standard pagination, scroll cursors, and search."
+---
+
+The SDK provides three patterns for iterating over large collections: standard pagination via `.all`, cursor-based scrolling via `.scroll`, and structured search via `.search`. Each is suited to different use cases.
+
+## Standard pagination
+
+All resources support `.all`, which returns a lazy `Enumerable`. The SDK handles pagination automatically — you iterate over results and pages are fetched as needed, without managing cursors or page tokens manually.
+
+```ruby
+# Iterate over all contacts
+contacts = intercom.contacts.all
+contacts.each { |contact| p contact.name }
+
+# Iterate over all companies
+intercom.companies.all.each { |company| puts "#{company.name} - #{company.custom_attributes["referral_source"]}" }
+intercom.companies.all.map { |company| company.name }
+
+# Iterate over all conversations
+intercom.conversations.all.each { |convo| p convo.id }
+```
+
+Internally, `.all` uses cursor-based pagination via a `starting_after` parameter and follows `pages.next` links in the response until no more pages remain.
+
+## Scroll (cursor-based, large datasets)
+
+Contacts and companies support `.scroll`, a cursor-based approach designed for retrieving very large datasets efficiently.
+
+```ruby
+# Iterate over all companies using scroll
+intercom.companies.scroll.each { |comp| puts comp.name }
+```
+
+<Warning>
+  Only one scroll cursor can exist at a time per resource. If you attempt to create a new scroll while one is already active, the SDK raises `Intercom::ScrollAlreadyExistsError`. Wait for the existing scroll to complete, or allow the cursor to expire before starting a new one.
+</Warning>
+
+<Note>
+  Scroll cursors expire if they are not used frequently enough. If you pause iteration for an extended period, the cursor may no longer be valid and you will need to restart from the beginning.
+</Note>
+
+## Search
+
+Contacts and conversations support structured search queries that let you filter results by field values and operators.
+
+```ruby
+# Search for contacts by email
+contacts = intercom.contacts.search(
+  "query": {
+    "field": 'email',
+    "operator": '=',
+    "value": 'some_contact@example.com'
+  }
+)
+contacts.each { |c| p c.email }
+```
+
+```ruby
+# Search for open conversations sorted by creation date
+conversations = intercom.conversations.search(
+  query: {
+    field: "open",
+    operator: "=",
+    value: true
+  },
+  sort_field: "created_at",
+  sort_order: "descending"
+)
+conversations.each { |c| p c.id }
+```
+
+The search proxy also supports `sort_field`, `sort_order`, `per_page`, and `starting_after` parameters. Like `.all`, it is an `Enumerable` and handles pagination automatically.
+
+For the full list of supported fields and operators, refer to the [Intercom API reference](https://developers.intercom.com/intercom-api-reference/reference).

@@ -1,97 +1,78 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "intercom-ruby"
+description: "Official Ruby gem for the Intercom API — build customer messaging and engagement features into your Ruby application."
 ---
 
-## Setting up
+## Welcome to intercom-ruby
 
-Get your documentation site up and running in minutes.
+`intercom-ruby` gives you a simple, idiomatic Ruby interface to the full Intercom REST API. Create contacts, manage conversations, track events, and send messages — all from your Ruby or Rails app.
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
-
-## Make it yours
-
-Design a docs site that looks great and empowers your users.
-
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+<CardGroup cols={2}>
+  <Card title="Installation" icon="gem" href="/installation">
+    Install the gem and configure your client in under a minute
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  <Card title="Authentication" icon="key" href="/authentication">
+    Connect with a Personal Access Token or OAuth
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  <Card title="Contacts" icon="user" href="/resources/contacts">
+    Create, update, search, archive, and merge contacts
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  <Card title="Conversations" icon="comments" href="/resources/conversations">
+    Reply, assign, open, close, and search conversations
   </Card>
-</Columns>
+  <Card title="Events" icon="bolt" href="/resources/events">
+    Track user actions with custom event metadata
+  </Card>
+  <Card title="Error Handling" icon="triangle-exclamation" href="/advanced/error-handling">
+    Handle API errors with typed exception classes
+  </Card>
+</CardGroup>
 
-## Create beautiful pages
+## Get started in 3 steps
 
-Everything you need to create world-class documentation.
+<Steps>
+  <Step title="Install the gem">
+    Add `intercom` to your Gemfile or install it directly:
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+    ```bash
+    gem install intercom
+    ```
+  </Step>
+  <Step title="Initialize your client">
+    Create a client using your Personal Access Token:
 
-## Need inspiration?
+    ```ruby
+    require 'intercom'
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+    intercom = Intercom::Client.new(token: ENV['INTERCOM_ACCESS_TOKEN'])
+    ```
+  </Step>
+  <Step title="Make your first API call">
+    Create a contact or list your existing ones:
+
+    ```ruby
+    # Create a new contact
+    contact = intercom.contacts.create(email: 'user@example.com', role: 'user')
+
+    # List all contacts
+    intercom.contacts.all.each { |c| puts c.email }
+    ```
+  </Step>
+</Steps>
+
+## What you can build
+
+<CardGroup cols={2}>
+  <Card title="Core Resources" icon="database" href="/resources/contacts">
+    Contacts, conversations, companies, events, and messages
+  </Card>
+  <Card title="Help Center" icon="book" href="/resources/articles-help-center">
+    Articles, collections, and sections for your Help Center
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/resources/webhooks">
+    Subscribe to real-time Intercom events via webhooks
+  </Card>
+  <Card title="Rate Limiting" icon="gauge" href="/advanced/rate-limiting">
+    Built-in rate limit handling with automatic retry
+  </Card>
+</CardGroup>

@@ -1,0 +1,66 @@
+---
+title: "Installation"
+description: "Add the intercom gem to your Ruby project and initialize the client."
+---
+
+## Requirements
+
+- Ruby 2.1 or later
+- A valid Intercom access token (see [Authentication](/authentication))
+
+<Note>
+Version 4 of intercom-ruby is not backwards compatible with previous versions. If you are upgrading from v3 or earlier, see the [migration guide](https://github.com/intercom/intercom-ruby/wiki/Migration-guide-for-v4) before proceeding.
+</Note>
+
+## Install the gem
+
+<CodeGroup>
+
+```bash gem install
+gem install intercom
+```
+
+```ruby Gemfile
+gem 'intercom', '~> 4.1'
+```
+
+</CodeGroup>
+
+After adding to your Gemfile, run:
+
+```bash
+bundle install
+```
+
+## Set up the client
+
+<Steps>
+  <Step title="Require the gem">
+    Add the require statement at the top of your file or in your application's initializer.
+
+    ```ruby
+    require 'intercom'
+    ```
+  </Step>
+
+  <Step title="Initialize the client">
+    Create a client instance with your access token. Using an environment variable is recommended.
+
+    ```ruby
+    intercom = Intercom::Client.new(token: ENV['INTERCOM_ACCESS_TOKEN'])
+    ```
+  </Step>
+
+  <Step title="Make your first API call">
+    Verify the setup by fetching the authenticated admin.
+
+    ```ruby
+    me = intercom.admins.me
+    puts me.email
+    ```
+  </Step>
+</Steps>
+
+## Next steps
+
+Once installed, configure authentication for your environment — see [Authentication](/authentication) for token setup, OAuth, and all available client options.

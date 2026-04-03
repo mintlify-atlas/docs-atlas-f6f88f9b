@@ -1,0 +1,118 @@
+---
+title: "Bulk Operations"
+description: "Bulk jobs, data export, counts, visitors, and phone call redirects in the intercom-ruby SDK."
+---
+
+## Bulk jobs
+
+Bulk jobs allow you to create large numbers of events in a single operation, rather than making individual API calls per record. You submit a job with a list of items and Intercom processes them asynchronously.
+
+### Submitting a bulk event job
+
+The `events` service supports bulk creation via `submit_bulk_job`. Pass a `create_items` array containing the data for each event.
+
+```ruby
+job = intercom.events.submit_bulk_job(
+  create_items: [
+    { event_name: "signed-up", created_at: Time.now.to_i, email: "alice@example.com" },
+    { event_name: "signed-up", created_at: Time.now.to_i, email: "bob@example.com" }
+  ]
+)
+```
+
+You can append items to an existing job by passing its ID:
+
+```ruby
+job = intercom.events.submit_bulk_job(
+  create_items: [{ event_name: "signed-up", created_at: Time.now.to_i, email: "carol@example.com" }],
+  job_id: job.id
+)
+```
+
+<Warning>
+  Events do not support bulk delete operations. Passing `delete_items` for events raises an `ArgumentError`.
+</Warning>
+
+### Checking job status
+
+Use `intercom.jobs` to find and inspect bulk jobs:
+
+```ruby
+# Find a job by ID
+job = intercom.jobs.find(id: job.id)
+```
+
+### Retrieving job errors
+
+If a job encounters errors during processing, you can retrieve the error feed:
+
+```ruby
+errors = intercom.jobs.errors(id: job.id)
+```
+
+---
+
+## Data export
+
+The `export_content` service lets you export raw contact and event data for a given time window.
+
+```ruby
+# Create a data export
+export = intercom.export_content.create(
+  created_at_after: 1667566801,
+  created_at_before: 1668085202
+)
+
+# Check the status of an export
+export = intercom.export_content.find(id: 'k0e27ohsyvh8ef3m')
+
+# Cancel an export
+intercom.export_content.cancel('k0e27ohsyvh8ef3m')
+```
+
+---
+
+## Counts
+
+The `counts` service returns aggregate statistics for your app and its resources.
+
+```ruby
+# App-wide counts
+intercom.counts.for_app
+
+# Counts broken down by type and count category
+intercom.counts.for_type(type: 'user', count: 'segment')
+```
+
+---
+
+## Visitors
+
+Visitors are anonymous users tracked by Intercom before they identify themselves.
+
+```ruby
+# Find a visitor by ID
+visitor = intercom.visitors.find(id: "5dd570e7b1b922452676af23")
+
+# Update a visitor
+visitor.name = "New name"
+intercom.visitors.save(visitor)
+
+# Convert a visitor into a lead
+intercom.visitors.convert(visitor)
+
+# Convert a visitor into an existing user
+user = intercom.contacts.find(id: "5db2e7f5b1b92243d2188cb3")
+intercom.visitors.convert(visitor, user)
+```
+
+---
+
+## Phone call redirect
+
+The `phone_call_redirect` service creates a Switch redirect that routes a phone call through Intercom.
+
+```ruby
+# Create a phone call redirect
+redirect = intercom.phone_call_redirect.create(phone_number: "+353871234567")
+```

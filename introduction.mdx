@@ -1,0 +1,70 @@
+---
+title: "Introduction"
+description: "Ruby bindings for the Intercom API — manage contacts, conversations, events, and more from your Ruby application."
+---
+
+## What is intercom-ruby?
+
+`intercom-ruby` is the official Ruby gem that provides a simple, idiomatic interface to the [Intercom REST API](https://developers.intercom.io/reference). It allows you to build customer messaging and engagement features directly into your Ruby or Rails application.
+
+With this gem you can:
+
+- Create and manage **contacts** (users and leads)
+- Send and manage **conversations** and **messages**
+- Track **events** and custom **data attributes**
+- Manage **companies**, **tags**, and **segments**
+- Publish **Help Center articles**, collections, and sections
+- Subscribe to **webhooks** for real-time event notifications
+- Export **data** for analytics and reporting
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="gem" href="/installation">
+    Add the gem to your project and get up and running in minutes
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Configure your access token or OAuth credentials
+  </Card>
+  <Card title="Contacts" icon="user" href="/resources/contacts">
+    Create, update, search, and manage contacts
+  </Card>
+  <Card title="Conversations" icon="comments" href="/resources/conversations">
+    Manage conversations, replies, and assignments
+  </Card>
+</CardGroup>
+
+## Quick example
+
+```ruby
+require 'intercom'
+
+# Initialize the client with your access token
+intercom = Intercom::Client.new(token: ENV['INTERCOM_ACCESS_TOKEN'])
+
+# Create a contact
+contact = intercom.contacts.create(email: 'user@example.com', role: 'user')
+
+# Start a conversation by sending a message
+intercom.messages.create({
+  message_type: 'inapp',
+  body: 'Welcome to our app!',
+  from: { type: 'admin', id: '1234' },
+  to: { type: 'user', id: contact.id }
+})
+```
+
+## API version compatibility
+
+The gem targets **Intercom API v2.6**. You can pin to a specific version:
+
+```ruby
+intercom = Intercom::Client.new(token: 'my_token', api_version: '2.6')
+```
+
+<Note>
+Version 4 of intercom-ruby is not backwards compatible with previous versions. If you are upgrading from v3 or earlier, see the [migration guide](https://github.com/intercom/intercom-ruby/wiki/Migration-guide-for-v4) before proceeding.
+</Note>
+
+## Requirements
+
+- Ruby 2.1 or later
+- A valid Intercom access token or OAuth credentials

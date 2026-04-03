@@ -1,0 +1,57 @@
+---
+title: "Rate Limiting"
+description: "Understanding and handling Intercom API rate limits in the intercom-ruby SDK."
+---
+
+The Intercom API enforces rate limits to ensure fair usage across all clients. When a limit is exceeded, the API returns an HTTP 429 and the SDK raises `Intercom::RateLimitExceeded`.
+
+## Checking rate limit details
+
+After any API call, you can inspect the current rate limit status on your client:
+
+```ruby
+intercom.rate_limit_details
+#=> {:limit=>180, :remaining=>179, :reset_at=>2014-10-07 14:58:00 +0100}
+```
+
+The returned hash contains:
+
+| Key | Type | Description |
+|---|---|---|
+| `:limit` | Integer | Total requests allowed per window |
+| `:remaining` | Integer | Requests remaining in the current window |
+| `:reset_at` | Time | Time at which the limit resets |
+
+## Manual rate limit checking
+
+You can use `rate_limit_details` to check your remaining quota before making requests and back off proactively:
+
+```ruby
+details = intercom.rate_limit_details
+if details[:remaining] < 10
+  sleep_seconds = (details[:reset_at] - Time.now.utc).ceil
+  sleep(sleep_seconds) if sleep_seconds > 0
+end
+```
+
+## Automatic rate limit handling
+
+Pass `handle_rate_limit: true` when initializing the client to have the SDK automatically catch 429 responses and wait until the reset time before retrying:
+
+```ruby
+intercom = Intercom::Client.new(token: ENV['AT'], handle_rate_limit: true)
+```
+
+When this flag is set, the SDK:
+
+1. Catches `Intercom::RateLimitExceeded` internally.
+2. Calculates how long to sleep until the rate limit resets.
+3. Retries the request automatically.
+
+<Warning>
+  After 3 retry attempts, the SDK re-raises `Intercom::RateLimitExceeded`. Catching this error frequently is a sign that your integration should be refactored to reduce the number of API calls being made.
+</Warning>
+
+<Tip>
+  If you are hitting rate limits regularly, consider batching operations, using [pagination](/advanced/pagination) to spread requests, or reviewing your call patterns to eliminate redundant requests.
+</Tip>

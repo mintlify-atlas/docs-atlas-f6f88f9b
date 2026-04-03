@@ -1,0 +1,318 @@
+---
+title: 'Conversations'
+description: 'Find, reply to, manage state, search, and tag conversations with the intercom-ruby SDK.'
+---
+
+Conversations are the core messaging object in Intercom. They are made up of a source message and a series of conversation parts. All conversation operations are available on `intercom.conversations`.
+
+## Find a conversation
+
+```ruby
+conversation = intercom.conversations.find(id: '1')
+```
+
+## List and iterate all conversations
+
+`intercom.conversations.all` pages through every conversation in your workspace.
+
+```ruby
+intercom.conversations.all.each { |convo| p convo.id }
+```
+
+## Find conversations by admin or user
+
+<Note>
+  `find_all` with type filters works only for API versions 2.5 and below. Use `search` for API v2.6+.
+</Note>
+
+<AccordionGroup>
+  <Accordion title="Conversations for an admin">
+    ```ruby
+    # All conversations (open and closed) assigned to an admin
+    intercom.conversations.find_all(type: 'admin', id: '7').each { |convo| p convo.id }
+
+    # Open conversations for an admin
+    intercom.conversations.find_all(type: 'admin', id: 7, open: true).each { |convo| p convo.id }
+
+    # Closed conversations for an admin
+    intercom.conversations.find_all(type: 'admin', id: 7, open: false).each { |convo| p convo.id }
+
+    # Closed conversations updated before a given timestamp
+    intercom.conversations.find_all(type: 'admin', id: 7, open: false, before: 1374844930).each { |convo| p convo.id }
+    ```
+  </Accordion>
+  <Accordion title="Conversations for a user">
+    ```ruby
+    # All conversations (read + unread) for a user by email
+    intercom.conversations.find_all(email: 'joe@example.com', type: 'user').each { |convo| p convo.id }
+
+    # All conversations (read + unread) explicitly including read ones
+    intercom.conversations.find_all(email: 'joe@example.com', type: 'user', unread: false).each { |convo| p convo.id }
+
+    # Only unread conversations for a user
+    intercom.conversations.find_all(email: 'joe@example.com', type: 'user', unread: true).each { |convo| p convo.id }
+
+    # By Intercom user ID
+    intercom.conversations.find_all(intercom_user_id: '536e564f316c83104c000020', type: 'user').each { |convo| p convo.id }
+
+    # For a lead — must use intercom_user_id and type: 'user'
+    intercom.conversations.find_all(intercom_user_id: lead.id, type: 'user').each { |convo| p convo.id }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Accessing conversation parts
+
+A conversation has a `source` and a list of `conversation_parts`. Each part represents a message, note, or state change.
+
+```ruby
+conversation = intercom.conversations.find(id: '1')
+
+# Subject of the source message (email conversations only)
+conversation.source.subject
+
+# Type of the first part (e.g. "comment", "note", "assignment")
+conversation.conversation_parts.first.part_type
+
+# Body of the second part
+conversation.conversation_parts[1].body
+```
+
+---
+
+## Statistics and SLA
+
+```ruby
+# Time (in seconds) until the first admin reply
+conversation.statistics.time_to_admin_reply
+
+# Timestamp of the last assignment action
+conversation.statistics.last_assignment_at
+
+# Name of the SLA applied to the conversation
+conversation.sla_applied.sla_name
+```
+
+---
+
+## Replying
+
+<Steps>
+  <Step title="User replies by email">
+    ```ruby
+    intercom.conversations.reply(
+      id: conversation.id,
+      type: 'user',
+      email: 'joe@example.com',
+      message_type: 'comment',
+      body: 'foo'
+    )
+    ```
+  </Step>
+  <Step title="Admin replies by ID">
+    ```ruby
+    intercom.conversations.reply(
+      id: conversation.id,
+      type: 'admin',
+      admin_id: '123',
+      message_type: 'comment',
+      body: 'bar'
+    )
+    ```
+  </Step>
+  <Step title="User replies with an attachment">
+    ```ruby
+    intercom.conversations.reply(
+      id: conversation.id,
+      type: 'user',
+      email: 'joe@example.com',
+      message_type: 'comment',
+      body: 'foo',
+      attachment_urls: ['http://www.example.com/attachment.jpg']
+    )
+    ```
+  </Step>
+</Steps>
+
+### Reply to last conversation
+
+Reply to a user's most recent conversation without knowing the conversation ID.
+
+<CodeGroup>
+
+```ruby User reply to last conversation
+intercom.conversations.reply_to_last(
+  type: 'user',
+  body: 'Thanks again',
+  message_type: 'comment',
+  user_id: '12345',
+  admin_id: '123'
+)
+```
+
+```ruby Admin reply to last conversation
+intercom.conversations.reply_to_last(
+  intercom_user_id: '5678',
+  type: 'admin',
+  admin_id: '123',
+  message_type: 'comment',
+  body: 'bar'
+)
+```
+
+```ruby User reply to last (by intercom_user_id)
+intercom.conversations.reply_to_last(
+  intercom_user_id: '5678',
+  type: 'user',
+  message_type: 'comment',
+  body: 'bar'
+)
+```
+
+</CodeGroup>
+
+---
+
+## State management
+
+<CodeGroup>
+
+```ruby Open a conversation
+intercom.conversations.open(id: conversation.id, admin_id: '123')
+```
+
+```ruby Close a conversation
+intercom.conversations.close(id: conversation.id, admin_id: '123')
+```
+
+```ruby Snooze a conversation
+intercom.conversations.snooze(id: conversation.id, admin_id: '123', snoozed_until: 9999999999)
+```
+
+```ruby Reply and open
+intercom.conversations.reply(
+  id: conversation.id,
+  type: 'admin',
+  admin_id: '123',
+  message_type: 'open',
+  body: 'bar'
+)
+```
+
+```ruby Reply and close
+intercom.conversations.reply(
+  id: conversation.id,
+  type: 'admin',
+  admin_id: '123',
+  message_type: 'close',
+  body: 'bar'
+)
+```
+
+</CodeGroup>
+
+---
+
+## Assign a conversation
+
+<Warning>
+  The entity performing the assignment (`admin_id`) must be an existing teammate. Use `intercom.admins.all.each {|a| puts a.inspect if a.type == 'admin' }` to list teammates. Conversations can be assigned to teams via `assignee_id`.
+</Warning>
+
+```ruby
+# Assign to another admin
+intercom.conversations.assign(id: conversation.id, admin_id: '123', assignee_id: '124')
+
+# Assign via reply (message_type: 'assignment')
+intercom.conversations.reply(
+  id: conversation.id,
+  type: 'admin',
+  assignee_id: assignee_admin.id,
+  admin_id: admin.id,
+  message_type: 'assignment'
+)
+```
+
+---
+
+## Mark as read
+
+```ruby
+intercom.conversations.mark_read(conversation.id)
+```
+
+---
+
+## Run assignment rules
+
+Triggers the workspace's assignment rules against the conversation and returns the updated conversation.
+
+```ruby
+intercom.conversations.run_assignment_rules(conversation.id)
+```
+
+---
+
+## Search conversations
+
+Pass a `query` hash to filter. Combine with `sort_field` and `sort_order` to control ordering.
+
+```ruby
+conversations = intercom.conversations.search(
+  query: {
+    field: "open",
+    operator: "=",
+    value: true
+  },
+  sort_field: "created_at",
+  sort_order: "descending"
+)
+conversations.each { |c| p c.id }
+```
+
+<Tip>
+  For the full list of searchable fields and operators, refer to the [Intercom API reference](https://developers.intercom.com/intercom-api-reference/reference).
+</Tip>
+
+---
+
+## Tagging conversations
+
+An admin ID is required for all tag operations on conversations.
+
+```ruby
+tag          = intercom.tags.find(id: "2")
+conversation = intercom.conversations.find(id: "1")
+admin        = intercom.admins.find(id: "1")
+
+# Add a tag
+conversation.add_tag(id: tag.id, admin_id: admin.id)
+
+# Remove a tag
+conversation.remove_tag(id: tag.id, admin_id: admin.id)
+```
+
+---
+
+## Contacts on a conversation
+
+```ruby
+# Add a contact to a conversation
+conversation.add_contact(admin_id: admin.id, customer: { intercom_user_id: contact.id })
+
+# Remove a contact from a conversation
+conversation.remove_contact(id: contact.id, admin_id: admin.id)
+```
+
+---
+
+## Full loading of an embedded entity
+
+Conversations often return partial objects for nested resources. Call `load` on the relevant service to fetch the full record.
+
+```ruby
+# Load the full contact from a partial embedded in a conversation
+intercom.contacts.load(conversation.contacts.first)
+```

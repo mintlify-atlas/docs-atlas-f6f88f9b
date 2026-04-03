@@ -1,0 +1,226 @@
+---
+title: 'Contacts'
+description: 'Create, search, update, and manage contacts (leads and users) with the intercom-ruby SDK.'
+---
+
+Contacts represent people in your Intercom workspace. Every contact has a `role` of either `"lead"` (an anonymous or unidentified person) or `"user"` (an identified person). All contact operations are available on `intercom.contacts`.
+
+<Note>
+  The Contacts resource requires Intercom API v2.0 or later and is not compatible with the legacy Users or Leads resources.
+</Note>
+
+## Create a contact
+
+<CodeGroup>
+
+```ruby Create a lead
+intercom = Intercom::Client.new(token: 'my_token')
+
+contact = intercom.contacts.create(email: "some_contact2@example.com", role: "lead")
+```
+
+```ruby Create a user
+contact = intercom.contacts.create(email: "some_contact2@example.com", role: "user")
+```
+
+</CodeGroup>
+
+## Find a contact
+
+Look up a single contact by their Intercom-assigned `id`.
+
+```ruby
+contact = intercom.contacts.find(id: contact.id)
+```
+
+## Update a contact
+
+Mutate attributes on the local object, then call `save` to persist the changes.
+
+<CodeGroup>
+
+```ruby Update name
+contact.name = "New name"
+intercom.contacts.save(contact)
+```
+
+```ruby Promote lead to user
+contact.role = "user"
+intercom.contacts.save(contact)
+```
+
+</CodeGroup>
+
+## Archive and unarchive
+
+Archiving soft-deletes a contact. Unarchiving restores them.
+
+```ruby
+# Archive a contact
+intercom.contacts.archive(contact)
+
+# Unarchive a contact
+intercom.contacts.unarchive(contact)
+```
+
+## Delete permanently
+
+<Warning>
+  Deletion is irreversible. Use `delete` only when you are certain the contact data is no longer needed. Archived contacts can also be deleted directly by ID without being unarchived first.
+</Warning>
+
+```ruby
+# Delete a contact permanently
+intercom.contacts.delete(contact)
+
+# Delete an archived contact directly by ID
+intercom.contacts.delete_archived_contact(contact.id)
+```
+
+## List all contacts
+
+`intercom.contacts.all` returns a lazy enumerable that pages through all contacts automatically.
+
+```ruby
+contacts = intercom.contacts.all
+contacts.each { |contact| p contact.name }
+```
+
+## Search contacts
+
+Pass a query object to `search`. The `field`, `operator`, and `value` keys define the filter condition.
+
+```ruby
+contacts = intercom.contacts.search(
+  "query": {
+    "field": 'email',
+    "operator": '=',
+    "value": 'some_contact@example.com'
+  }
+)
+contacts.each { |c| p c.email }
+```
+
+<Tip>
+  For the full list of searchable fields and supported operators, refer to the [Intercom API reference](https://developers.intercom.com/intercom-api-reference/reference).
+</Tip>
+
+## Merge a lead into a user
+
+Merges a lead contact into an existing user contact. The lead must have `role: "lead"` and the target must have `role: "user"`.
+
+```ruby
+lead = intercom.contacts.create(email: "some_contact2@example.com", role: "lead")
+user = intercom.contacts.find(id: "5db2e80ab1b92243d2188cfe")
+
+intercom.contacts.merge(lead, user)
+```
+
+<Note>
+  After a successful merge the user object is returned with the merged data. Merging a non-lead into a non-user raises `Intercom::InvalidMergeError`.
+</Note>
+
+## Load an embedded entity
+
+When a conversation returns a partial contact object, load the full record with `contacts.load`.
+
+```ruby
+intercom.contacts.load(conversation.contacts.first)
+```
+
+---
+
+## Tags
+
+<Steps>
+  <Step title="Find the tag">
+    ```ruby
+    tag = intercom.tags.find(id: "123")
+    ```
+  </Step>
+  <Step title="Add the tag to a contact">
+    ```ruby
+    contact.add_tag(id: tag.id)
+    ```
+  </Step>
+  <Step title="Remove the tag from a contact">
+    ```ruby
+    contact.remove_tag(id: tag.id)
+    ```
+  </Step>
+  <Step title="List all tags on a contact">
+    ```ruby
+    contact.tags.each { |t| p t.name }
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Notes
+
+```ruby
+# Create a note on a contact
+contact.create_note(body: "<p>Text for the note</p>")
+
+# List all notes for a contact
+contact.notes.each { |n| p n.body }
+```
+
+---
+
+## Segments
+
+```ruby
+# List segments a contact belongs to
+contact.segments.each { |segment| p segment.name }
+```
+
+---
+
+## Companies
+
+<Steps>
+  <Step title="Find the company">
+    ```ruby
+    company = intercom.companies.find(id: "123")
+    ```
+  </Step>
+  <Step title="Add the contact to the company">
+    ```ruby
+    contact.add_company(id: company.id)
+    ```
+  </Step>
+  <Step title="Remove the contact from the company">
+    ```ruby
+    contact.remove_company(id: company.id)
+    ```
+  </Step>
+  <Step title="List companies for a contact">
+    ```ruby
+    contact.companies.each { |c| p c.name }
+    ```
+  </Step>
+</Steps>
+
+---
+
+## Subscription types
+
+<AccordionGroup>
+  <Accordion title="Add a subscription type">
+    ```ruby
+    contact.create_subscription_type(id: subscription_type.id)
+    ```
+  </Accordion>
+  <Accordion title="List subscription types for a contact">
+    ```ruby
+    contact.subscription_types.each { |n| p n.id }
+    ```
+  </Accordion>
+  <Accordion title="Remove a subscription type">
+    ```ruby
+    contact.remove_subscription_type({ "id": subscription_type.id })
+    ```
+  </Accordion>
+</AccordionGroup>

@@ -1,0 +1,83 @@
+---
+title: 'Companies'
+description: 'Find, update, delete, and iterate companies with the intercom-ruby SDK.'
+---
+
+Companies represent organisations in your Intercom workspace. All company operations are available on `intercom.companies`.
+
+## Find a company
+
+Companies can be looked up by three different identifiers.
+
+<CodeGroup>
+
+```ruby By company_id (your system's ID)
+company = intercom.companies.find(company_id: "44")
+```
+
+```ruby By name
+company = intercom.companies.find(name: "Some company")
+```
+
+```ruby By Intercom id
+company = intercom.companies.find(id: "41e66f0313708347cb0000d0")
+```
+
+</CodeGroup>
+
+## Update a company
+
+Mutate attributes on the local object, then call `save` to persist the changes.
+
+```ruby
+company.name = 'Updated company name'
+intercom.companies.save(company)
+```
+
+## Delete a company
+
+<Warning>
+  Deletion is permanent and cannot be undone.
+</Warning>
+
+```ruby
+intercom.companies.delete(company)
+```
+
+## Iterate all companies
+
+`intercom.companies.all` pages through every company in your workspace. Use `each` or `map` to process results.
+
+```ruby
+# Print name and a custom attribute for each company
+intercom.companies.all.each do |company|
+  puts "#{company.name} - #{company.custom_attributes["referral_source"]}"
+end
+
+# Collect all company names
+intercom.companies.all.map { |company| company.name }
+```
+
+## Scroll through large lists
+
+For very large datasets, use `scroll` instead of `all`. Scroll uses a cursor-based approach that is more efficient for bulk processing.
+
+```ruby
+intercom.companies.scroll.each { |comp| puts comp.name }
+```
+
+<Note>
+  A scroll cursor expires after one minute of inactivity. If you need to restart the scroll, create a new scroll session.
+</Note>
+
+## Filter companies by tag or segment
+
+You can retrieve the subset of companies that have a specific tag or belong to a specific segment.
+
+```ruby
+# All companies with a given tag ID
+intercom.companies.by_tag(tag_id).each { |company| puts company.name }
+
+# All companies in a given segment ID
+intercom.companies.by_segment(segment_id).each { |company| puts company.name }
+```
